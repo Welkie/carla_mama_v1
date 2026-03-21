@@ -1,15 +1,100 @@
-1. Dựa vào các file code của run_msl.py và các file liên quan để học logic, luồng xử lý,...
+Found Kaggle dataset at: /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl
+Copying /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl/labeled_anomalies.csv to /kaggle/working/carla_mama_v1/datasets/smap/labeled_anomalies.csv...
+Copying /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl/data/data/train to /kaggle/working/carla_mama_v1/datasets/smap/train...
+Copying /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl/data/data/test to /kaggle/working/carla_mama_v1/datasets/smap/test...
 
-Xây dựng file run_yahoo.py của tui tương tự, tui code trên kaggle bằng GPU T4
-Link dataset: /kaggle/input/datasets/saostken/yahoo-a1/yahoo_A1
-## Thông tin dataset Yahoo-A1
-- **Cấu trúc:** 67 file CSV độc lập (`real_1.csv` → `real_67.csv`)
-- **Các cột:** `timestamp`, `value`, `is_anomaly`
-- **Số chiều:** 1 (univariate time series)
-- **Tỉ lệ anomaly:** ~1.76% (mất cân bằng cao)
-### Train/Test split
-- Yahoo-A1 KHÔNG có predefined split (khác MSL)
-- Chia 50/50: **nửa đầu** mỗi file → train, **nửa sau** → test
-- Train set: KHÔNG dùng nhãn (unsupervised/self-supervised)
+==============================
+STARTING EXPERIMENTS
+==============================
+GPU available: Tesla T4
 
-2. Kiểm tra và trả lời qua tin nhắn là file run_smap.py và các file liên quan vẫn chạy ổn đúng ko?
+Running dataset: P-1
+Error running pretext for P-1: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_smap.yml', '--fname', 'P-1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 240, in <module>
+    main()
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 92, in main
+    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 94, in get_train_dataset
+    dataset = MSL(p['fname'], train=True, transform=transform, sanomaly=sanomaly,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/data/MSL.py", line 29, in __init__
+    with open(os.path.join(self.root, 'labeled_anomalies.csv'), 'r') as file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/kaggle/working/carla_mama_v1/datasets/MSL/labeled_anomalies.csv'
+
+Error running classification for P-1: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_smap.yml', '--fname', 'P-1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 214, in <module>
+    main()
+  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 52, in main
+    train_dataset = get_aug_train_dataset(p, train_transformations, to_neighbors_dataset = True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 172, in get_aug_train_dataset
+    dataloader = torch.load(p['contrastive_dataset'], weights_only=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1065, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 468, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 449, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'results/SMAP/P-1/pretext/con_train_dataset.pth'
+
+Max GPU Memory after P-1: 0.00 MB
+
+Running dataset: S-1
+Error running pretext for S-1: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_smap.yml', '--fname', 'S-1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 240, in <module>
+    main()
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 92, in main
+    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 94, in get_train_dataset
+    dataset = MSL(p['fname'], train=True, transform=transform, sanomaly=sanomaly,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/data/MSL.py", line 29, in __init__
+    with open(os.path.join(self.root, 'labeled_anomalies.csv'), 'r') as file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/kaggle/working/carla_mama_v1/datasets/MSL/labeled_anomalies.csv'
+
+Error running classification for S-1: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_smap.yml', '--fname', 'S-1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 214, in <module>
+    main()
+  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 52, in main
+    train_dataset = get_aug_train_dataset(p, train_transformations, to_neighbors_dataset = True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 172, in get_aug_train_dataset
+    dataloader = torch.load(p['contrastive_dataset'], weights_only=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1065, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 468, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 449, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'results/SMAP/S-1/pretext/con_train_dataset.pth'
+
+Max GPU Memory after S-1: 0.00 MB
+
+Running dataset: E-1
+Error running pretext for E-1: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_smap.yml', '--fname', 'E-1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 240, in <module>
+    main()
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 92, in main
+    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 94, in get_train_dataset
+    dataset = MSL(p['fname'], train=True, transform=transform, sanomaly=sanomaly,
+
+Fix và nói tui biết lỗi gì

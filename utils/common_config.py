@@ -91,7 +91,9 @@ def get_train_dataset(p, transform, sanomaly, to_augmented_dataset=False,
     mean, std = 0, 0
     if p['train_db_name'] == 'MSL' or p['train_db_name'] == 'SMAP':
         from data.MSL import MSL
-        dataset = MSL(p['fname'], train=True, transform=transform, sanomaly=sanomaly,
+        from utils.mypath import MyPath
+        db_key = 'msl' if p['train_db_name'] == 'MSL' else 'smap'
+        dataset = MSL(p['fname'], root=MyPath.db_root_dir(db_key), train=True, transform=transform, sanomaly=sanomaly,
                       mean_data=None, std_data=None)
         mean, std = dataset.get_info()
 
@@ -185,7 +187,9 @@ def get_val_dataset(p, transform=None, sanomaly=None, to_neighbors_dataset=False
     # Base dataset
     if p['val_db_name'] == 'MSL' or p['val_db_name'] == 'SMAP':
         from data.MSL import MSL
-        dataset = MSL(p['fname'], train=False, transform=transform, sanomaly=sanomaly,
+        from utils.mypath import MyPath
+        db_key = 'msl' if p['val_db_name'] == 'MSL' else 'smap'
+        dataset = MSL(p['fname'], root=MyPath.db_root_dir(db_key), train=False, transform=transform, sanomaly=sanomaly,
                       mean_data=mean_data, std_data=std_data)
 
     elif p['train_db_name'] == 'yahoo':
