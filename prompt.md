@@ -1,216 +1,335 @@
-!python run_kpi.py
-Found Kaggle HDF5 at: /kaggle/input/datasets/minhanhphm1676/kpi-anomaly-dectection/KPI-Anomaly-Detection-master/Finals_dataset/phase2_ground_truth.hdf/phase2_ground_truth.hdf
-Reading HDF5 file: /kaggle/input/datasets/minhanhphm1676/kpi-anomaly-dectection/KPI-Anomaly-Detection-master/Finals_dataset/phase2_ground_truth.hdf/phase2_ground_truth.hdf
-HDF5 loaded — shape: (2918847, 4), columns: ['timestamp', 'value', 'label', 'KPI ID']
-Detected columns — kpi_id: KPI ID, value: value, label: label, timestamp: timestamp
-Found 29 KPI series.
-  KPI 05f10d3a-239c-3bef-9bdc-a2feeb0037aa: train=74565 rows (605 anomalies), test=74565 rows (386 anomalies)
-  KPI 0efb375b-b902-3661-ab23-9a0bb799f4e3: train=4392 rows (63 anomalies), test=4392 rows (8 anomalies)
-  KPI 1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0: train=74578 rows (346 anomalies), test=74578 rows (287 anomalies)
-  KPI 301c70d8-1630-35ac-8f96-bc1b6f4359ea: train=4392 rows (102 anomalies), test=4392 rows (104 anomalies)
-  KPI 42d6616d-c9c5-370a-a8ba-17ead74f3114: train=74580 rows (277 anomalies), test=74581 rows (1619 anomalies)
-  KPI 43115f2a-baeb-3b01-96f7-4ea14188343c: train=55314 rows (413 anomalies), test=55315 rows (526 anomalies)
-  KPI 431a8542-c468-3988-a508-3afd06a218da: train=55783 rows (878 anomalies), test=55783 rows (2408 anomalies)
-  KPI 4d2af31a-9916-3d9f-8a8e-8a268a48c095: train=55685 rows (947 anomalies), test=55685 rows (1638 anomalies)
-  KPI 54350a12-7a9d-3ca8-b81f-f886b9d156fd: train=3808 rows (79 anomalies), test=3808 rows (29 anomalies)
-  KPI 55f8b8b8-b659-38df-b3df-e4a5a8a54bc9: train=74566 rows (2915 anomalies), test=74567 rows (3176 anomalies)
-  KPI 57051487-3a40-3828-9084-a12f7f23ee38: train=55839 rows (0 anomalies), test=55840 rows (46 anomalies)
-  KPI 6a757df4-95e5-3357-8406-165e2bd49360: train=55438 rows (901 anomalies), test=55438 rows (1737 anomalies)
-  KPI 6d1114ae-be04-3c46-b5aa-be1a003a57cd: train=74561 rows (357 anomalies), test=74561 rows (404 anomalies)
-  KPI 6efa3a07-4544-34a0-b921-a155bd1a05e8: train=74574 rows (2184 anomalies), test=74574 rows (3099 anomalies)
-  KPI 7103fa0f-cac4-314f-addc-866190247439: train=54212 rows (18 anomalies), test=54213 rows (50 anomalies)
-  KPI 847e8ecc-f8d2-3a93-9107-f367a0aab37d: train=74561 rows (448 anomalies), test=74562 rows (342 anomalies)
-  KPI 8723f0fb-eaef-32e6-b372-6034c9c04b80: train=74559 rows (382 anomalies), test=74559 rows (429 anomalies)
-  KPI 9c639a46-34c8-39bc-aaf0-9144b37adfc8: train=55318 rows (418 anomalies), test=55318 rows (571 anomalies)
-  KPI a07ac296-de40-3a7c-8df3-91f642cc14d0: train=55653 rows (784 anomalies), test=55654 rows (1475 anomalies)
-  KPI a8c06b47-cc41-3738-9110-12df0ee4c721: train=3789 rows (53 anomalies), test=3789 rows (74 anomalies)
-  KPI ab216663-dcc2-3a24-b1ee-2c3e550e06c9: train=5390 rows (118 anomalies), test=5390 rows (69 anomalies)
-  KPI adb2fde9-8589-3f5b-a410-5fe14386c7af: train=74577 rows (294 anomalies), test=74578 rows (1398 anomalies)
-  KPI ba5f3328-9f3f-3ff5-a683-84437d16d554: train=74566 rows (3007 anomalies), test=74566 rows (3770 anomalies)
-  KPI c02607e8-7399-3dde-9d28-8a8da5e5d251: train=4392 rows (51 anomalies), test=4392 rows (10 anomalies)
-  KPI c69a50cf-ee03-3bd7-831e-407d36c7ee91: train=74579 rows (354 anomalies), test=74580 rows (348 anomalies)
-  KPI da10a69f-d836-3baa-ad40-3e548ecf1fbd: train=53583 rows (4050 anomalies), test=53584 rows (4700 anomalies)
-  KPI e0747cad-8dc8-38a9-a9ab-855b61f5551d: train=4392 rows (106 anomalies), test=4392 rows (10 anomalies)
-  KPI f0932edd-6400-3e63-9559-0a9860a1baa9: train=56074 rows (1188 anomalies), test=56075 rows (1654 anomalies)
-  KPI ffb82d38-5f00-37db-abc0-5d2e4e4cb6aa: train=55698 rows (946 anomalies), test=55698 rows (1909 anomalies)
-
-Prepared 29 KPI CSVs → datasets/kpi/train/ and datasets/kpi/test/
-
-Processing 29 KPI series: 05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv ... ffb82d38-5f00-37db-abc0-5d2e4e4cb6aa.csv
+!python run_smap.py
+Found Kaggle dataset at: /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl
+Copying /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl/labeled_anomalies.csv to /kaggle/working/carla_mama_v1/datasets/smap/labeled_anomalies.csv...
+Copying /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl/data/data/train to /kaggle/working/carla_mama_v1/datasets/smap/train...
+Copying /kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl/data/data/test to /kaggle/working/carla_mama_v1/datasets/smap/test...
 
 ==============================
-STARTING EXPERIMENTS — KPI
+STARTING EXPERIMENTS
 ==============================
 GPU available: Tesla T4
 
-Running dataset: 05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv
-Error running pretext for 05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_kpi.yml', '--fname', '05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv']' returned non-zero exit status 1.
-Traceback (most recent call last):
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 241, in <module>
-    main()
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 144, in main
-    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 154, in get_train_dataset
-    dataset = AugmentedDataset(dataset)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 33, in __init__
-    self.create_pairs()
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 42, in create_pairs
-    item = self.dataset.__getitem__(index)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/KPI.py", line 83, in __getitem__
-    ts_org = torch.from_numpy(self.data[index]).float().to(device)  # cuda
-             ^^^^^
-NameError: name 'torch' is not defined
+Running dataset: P-1
+Max GPU Memory after P-1: 468.30 MB
 
-Error running classification for 05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_kpi.yml', '--fname', '05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv']' returned non-zero exit status 1.
+Running dataset: S-1
+Max GPU Memory after S-1: 468.30 MB
+
+Running dataset: E-1
+Max GPU Memory after E-1: 469.47 MB
+
+Running dataset: E-2
+Max GPU Memory after E-2: 469.47 MB
+
+Running dataset: E-3
+Error running classification for E-3: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_smap.yml', '--fname', 'E-3']' returned non-zero exit status 1.
+/kaggle/working/carla_mama_v1/utils/common_config.py:63: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(pretrain_path, map_location='cpu')
 Traceback (most recent call last):
   File "/kaggle/working/carla_mama_v1/carla_classification.py", line 214, in <module>
     main()
-  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 52, in main
-    train_dataset = get_aug_train_dataset(p, train_transformations, to_neighbors_dataset = True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 174, in get_aug_train_dataset
-    dataloader = torch.load(p['contrastive_dataset'], weights_only=False)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1065, in load
-    with _open_file_like(f, 'rb') as opened_file:
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 468, in _open_file_like
-    return _open_file(name_or_buffer, mode)
+  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 190, in main
+    predictions = get_predictions(p, val_dataloader, model, False, False)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/evaluate_utils.py", line 74, in get_predictions
+    res = model(ts.view(bs, h, w), forward_pass='return_all')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 449, in __init__
-    super().__init__(open(name, mode))
-                     ^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'results/kpi/05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv/pretext/con_train_dataset.pth'
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/data_parallel.py", line 186, in forward
+    outputs = self.parallel_apply(replicas, inputs, module_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/data_parallel.py", line 201, in parallel_apply
+    return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/parallel_apply.py", line 109, in parallel_apply
+    output.reraise()
+  File "/usr/local/lib/python3.12/dist-packages/torch/_utils.py", line 706, in reraise
+    raise exception
+TypeError: Caught TypeError in replica 1 on device 1.
+Original Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/parallel_apply.py", line 84, in _worker
+    output = module(*input, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ClusteringModel.forward() missing 1 required positional argument: 'x'
 
-Max GPU Memory after 05f10d3a-239c-3bef-9bdc-a2feeb0037aa.csv: 0.00 MB
 
-Running dataset: 0efb375b-b902-3661-ab23-9a0bb799f4e3.csv
-Error running pretext for 0efb375b-b902-3661-ab23-9a0bb799f4e3.csv: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_kpi.yml', '--fname', '0efb375b-b902-3661-ab23-9a0bb799f4e3.csv']' returned non-zero exit status 1.
-Traceback (most recent call last):
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 241, in <module>
-    main()
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 144, in main
-    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 154, in get_train_dataset
-    dataset = AugmentedDataset(dataset)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 33, in __init__
-    self.create_pairs()
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 42, in create_pairs
-    item = self.dataset.__getitem__(index)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/KPI.py", line 83, in __getitem__
-    ts_org = torch.from_numpy(self.data[index]).float().to(device)  # cuda
-             ^^^^^
-NameError: name 'torch' is not defined
+Max GPU Memory after E-3: 469.47 MB
 
-Error running classification for 0efb375b-b902-3661-ab23-9a0bb799f4e3.csv: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_kpi.yml', '--fname', '0efb375b-b902-3661-ab23-9a0bb799f4e3.csv']' returned non-zero exit status 1.
+Running dataset: E-4
+Max GPU Memory after E-4: 469.47 MB
+
+Running dataset: E-5
+Max GPU Memory after E-5: 469.47 MB
+
+Running dataset: E-6
+Max GPU Memory after E-6: 469.47 MB
+
+Running dataset: E-7
+Max GPU Memory after E-7: 469.47 MB
+
+Running dataset: E-8
+Max GPU Memory after E-8: 469.47 MB
+
+Running dataset: E-9
+Max GPU Memory after E-9: 469.47 MB
+
+Running dataset: E-10
+Max GPU Memory after E-10: 469.47 MB
+
+Running dataset: E-11
+Max GPU Memory after E-11: 469.47 MB
+
+Running dataset: E-12
+Max GPU Memory after E-12: 469.47 MB
+
+Running dataset: E-13
+Max GPU Memory after E-13: 469.48 MB
+
+Running dataset: A-1
+Max GPU Memory after A-1: 469.48 MB
+
+Running dataset: D-1
+Max GPU Memory after D-1: 469.48 MB
+
+Running dataset: P-2
+Max GPU Memory after P-2: 469.48 MB
+
+Running dataset: P-3
+Max GPU Memory after P-3: 469.48 MB
+
+Running dataset: D-2
+Max GPU Memory after D-2: 469.48 MB
+
+Running dataset: D-3
+Max GPU Memory after D-3: 469.48 MB
+
+Running dataset: D-4
+Max GPU Memory after D-4: 469.48 MB
+
+Running dataset: A-2
+Max GPU Memory after A-2: 469.48 MB
+
+Running dataset: A-3
+Max GPU Memory after A-3: 469.48 MB
+
+Running dataset: A-4
+Max GPU Memory after A-4: 469.48 MB
+
+Running dataset: G-1
+Max GPU Memory after G-1: 469.48 MB
+
+Running dataset: G-2
+Max GPU Memory after G-2: 469.48 MB
+
+Running dataset: D-5
+Max GPU Memory after D-5: 469.48 MB
+
+Running dataset: D-6
+Max GPU Memory after D-6: 469.48 MB
+
+Running dataset: D-7
+Max GPU Memory after D-7: 469.48 MB
+
+Running dataset: F-1
+Max GPU Memory after F-1: 469.48 MB
+
+Running dataset: P-4
+Max GPU Memory after P-4: 469.48 MB
+
+Running dataset: G-3
+Error running classification for G-3: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_smap.yml', '--fname', 'G-3']' returned non-zero exit status 1.
+/kaggle/working/carla_mama_v1/utils/common_config.py:63: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(pretrain_path, map_location='cpu')
 Traceback (most recent call last):
   File "/kaggle/working/carla_mama_v1/carla_classification.py", line 214, in <module>
     main()
-  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 52, in main
-    train_dataset = get_aug_train_dataset(p, train_transformations, to_neighbors_dataset = True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 174, in get_aug_train_dataset
-    dataloader = torch.load(p['contrastive_dataset'], weights_only=False)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1065, in load
-    with _open_file_like(f, 'rb') as opened_file:
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 468, in _open_file_like
-    return _open_file(name_or_buffer, mode)
+  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 190, in main
+    predictions = get_predictions(p, val_dataloader, model, False, False)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/evaluate_utils.py", line 74, in get_predictions
+    res = model(ts.view(bs, h, w), forward_pass='return_all')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 449, in __init__
-    super().__init__(open(name, mode))
-                     ^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'results/kpi/0efb375b-b902-3661-ab23-9a0bb799f4e3.csv/pretext/con_train_dataset.pth'
-
-Max GPU Memory after 0efb375b-b902-3661-ab23-9a0bb799f4e3.csv: 0.00 MB
-
-Running dataset: 1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv
-Error running pretext for 1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_kpi.yml', '--fname', '1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv']' returned non-zero exit status 1.
-Traceback (most recent call last):
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 241, in <module>
-    main()
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 144, in main
-    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 154, in get_train_dataset
-    dataset = AugmentedDataset(dataset)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 33, in __init__
-    self.create_pairs()
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 42, in create_pairs
-    item = self.dataset.__getitem__(index)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/KPI.py", line 83, in __getitem__
-    ts_org = torch.from_numpy(self.data[index]).float().to(device)  # cuda
-             ^^^^^
-NameError: name 'torch' is not defined
-
-Error running classification for 1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_kpi.yml', '--fname', '1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv']' returned non-zero exit status 1.
-Traceback (most recent call last):
-  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 214, in <module>
-    main()
-  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 52, in main
-    train_dataset = get_aug_train_dataset(p, train_transformations, to_neighbors_dataset = True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 174, in get_aug_train_dataset
-    dataloader = torch.load(p['contrastive_dataset'], weights_only=False)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1065, in load
-    with _open_file_like(f, 'rb') as opened_file:
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 468, in _open_file_like
-    return _open_file(name_or_buffer, mode)
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/data_parallel.py", line 186, in forward
+    outputs = self.parallel_apply(replicas, inputs, module_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/data_parallel.py", line 201, in parallel_apply
+    return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/parallel_apply.py", line 109, in parallel_apply
+    output.reraise()
+  File "/usr/local/lib/python3.12/dist-packages/torch/_utils.py", line 706, in reraise
+    raise exception
+TypeError: Caught TypeError in replica 1 on device 1.
+Original Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/parallel/parallel_apply.py", line 84, in _worker
+    output = module(*input, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 449, in __init__
-    super().__init__(open(name, mode))
-                     ^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'results/kpi/1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv/pretext/con_train_dataset.pth'
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ClusteringModel.forward() missing 1 required positional argument: 'x'
 
-Max GPU Memory after 1c6d7a26-1f1a-3321-bb4d-7a9d969ec8f0.csv: 0.00 MB
 
-Running dataset: 301c70d8-1630-35ac-8f96-bc1b6f4359ea.csv
-Error running pretext for 301c70d8-1630-35ac-8f96-bc1b6f4359ea.csv: Command '['/usr/bin/python3', 'carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_kpi.yml', '--fname', '301c70d8-1630-35ac-8f96-bc1b6f4359ea.csv']' returned non-zero exit status 1.
-Traceback (most recent call last):
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 241, in <module>
-    main()
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 144, in main
-    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 154, in get_train_dataset
-    dataset = AugmentedDataset(dataset)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 33, in __init__
-    self.create_pairs()
-  File "/kaggle/working/carla_mama_v1/data/custom_dataset.py", line 42, in create_pairs
-    item = self.dataset.__getitem__(index)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/KPI.py", line 83, in __getitem__
-    ts_org = torch.from_numpy(self.data[index]).float().to(device)  # cuda
-             ^^^^^
-NameError: name 'torch' is not defined
+Max GPU Memory after G-3: 469.48 MB
 
-Error running classification for 301c70d8-1630-35ac-8f96-bc1b6f4359ea.csv: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_kpi.yml', '--fname', '301c70d8-1630-35ac-8f96-bc1b6f4359ea.csv']' returned non-zero exit status 1.
-Traceback (most recent call last):
-  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 214, in <module>
-    main()
-  File "/kaggle/working/carla_mama_v1/carla_classification.py", line 52, in main
-    train_dataset = get_aug_train_dataset(p, train_transformations, to_neighbors_dataset = True)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 174, in get_aug_train_dataset
-    dataloader = torch.load(p['contrastive_dataset'], weights_only=False)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 1065, in load
-    with _open_file_like(f, 'rb') as opened_file:
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 468, in _open_file_like
-    return _open_file(name_or_buffer, mode)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/serialization.py", line 449, in __init__
-    super().__init__(open(name, mode))
+Running dataset: T-1
+Max GPU Memory after T-1: 469.48 MB
+
+Running dataset: T-2
+Max GPU Memory after T-2: 469.48 MB
+
+Running dataset: D-8
+Max GPU Memory after D-8: 469.48 MB
+
+Running dataset: D-9
+Max GPU Memory after D-9: 469.48 MB
+
+Running dataset: F-2
+Max GPU Memory after F-2: 469.48 MB
+
+Running dataset: G-4
+Max GPU Memory after G-4: 469.48 MB
+
+Running dataset: T-3
+Max GPU Memory after T-3: 469.48 MB
+
+Running dataset: D-11
+Max GPU Memory after D-11: 469.48 MB
+
+Running dataset: D-12
+Max GPU Memory after D-12: 469.48 MB
+
+Running dataset: B-1
+Max GPU Memory after B-1: 469.48 MB
+
+Running dataset: G-6
+Max GPU Memory after G-6: 469.62 MB
+
+Running dataset: G-7
+Max GPU Memory after G-7: 469.62 MB
+
+Running dataset: P-7
+Max GPU Memory after P-7: 469.62 MB
+
+Running dataset: R-1
+Max GPU Memory after R-1: 469.62 MB
+
+Running dataset: A-5
+Max GPU Memory after A-5: 469.62 MB
+
+Running dataset: A-6
+Max GPU Memory after A-6: 469.62 MB
+
+Running dataset: A-7
+Max GPU Memory after A-7: 469.62 MB
+
+Running dataset: D-13
+Max GPU Memory after D-13: 469.62 MB
+
+Running dataset: P-2
+Max GPU Memory after P-2: 469.62 MB
+
+Running dataset: A-8
+Max GPU Memory after A-8: 469.62 MB
+
+Running dataset: A-9
+Max GPU Memory after A-9: 469.62 MB
+
+Running dataset: F-3
+Max GPU Memory after F-3: 469.62 MB
+
+==============================
+DONE ALL SMAP DATASETS
+Total time: 32155.19 s
+Avg / dataset: 584.64 s
+==============================
+
+Time results saved to results/smap/time_results.json
+
+==============================
+STARTING EVALUATION (PAPER STYLE)
+==============================
+Skip P-1 (missing files)
+Skip S-1 (missing files)
+Skip E-1 (missing files)
+Skip E-2 (missing files)
+Skip E-3 (missing files)
+Skip E-4 (missing files)
+Skip E-5 (missing files)
+Skip E-6 (missing files)
+Skip E-7 (missing files)
+Skip E-8 (missing files)
+Skip E-9 (missing files)
+Skip E-10 (missing files)
+Skip E-11 (missing files)
+Skip E-12 (missing files)
+Skip E-13 (missing files)
+Skip A-1 (missing files)
+Skip D-1 (missing files)
+Skip P-2 (missing files)
+Skip P-3 (missing files)
+Skip D-2 (missing files)
+Skip D-3 (missing files)
+Skip D-4 (missing files)
+Skip A-2 (missing files)
+Skip A-3 (missing files)
+Skip A-4 (missing files)
+Skip G-1 (missing files)
+Skip G-2 (missing files)
+Skip D-5 (missing files)
+Skip D-6 (missing files)
+Skip D-7 (missing files)
+Skip F-1 (missing files)
+Skip P-4 (missing files)
+Skip G-3 (missing files)
+Skip T-1 (missing files)
+Skip T-2 (missing files)
+Skip D-8 (missing files)
+Skip D-9 (missing files)
+Skip F-2 (missing files)
+Skip G-4 (missing files)
+Skip T-3 (missing files)
+Skip D-11 (missing files)
+Skip D-12 (missing files)
+Skip B-1 (missing files)
+Skip G-6 (missing files)
+Skip G-7 (missing files)
+Skip P-7 (missing files)
+Skip R-1 (missing files)
+Skip A-5 (missing files)
+Skip A-6 (missing files)
+Skip A-7 (missing files)
+Skip D-13 (missing files)
+Skip P-2 (missing files)
+Skip A-8 (missing files)
+Skip A-9 (missing files)
+Skip F-3 (missing files)
+No results!
+
+fix lỗi missing files và những file chạy bị lỗi
