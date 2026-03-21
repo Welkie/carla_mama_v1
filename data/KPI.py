@@ -2,9 +2,12 @@
 import os
 import pandas as pd
 import numpy as np
+import torch
 from torch.utils.data import Dataset
 from utils.mypath import MyPath
 from sklearn.preprocessing import StandardScaler, RobustScaler
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class KPI(Dataset):
@@ -57,6 +60,13 @@ class KPI(Dataset):
 
         self.targets = labels
         self.data = data
+
+        if len(self.data) < wsize:
+            raise ValueError(
+                f"Dataset too short ({len(self.data)} samples) for window size {wsize}. "
+                f"Try a larger split or smaller window."
+            )
+
         self.data, self.targets = self.convert_to_windows(wsize, wstride)
 
     def convert_to_windows(self, w_size, stride):
@@ -88,9 +98,13 @@ class KPI(Dataset):
             target = 0
             class_name = ''
 
-        ts_size = len(ts)
+        # Handle univariate (1D) and multivariate (2D) tensors safely
+        if ts_org.ndim == 1:
+            ts_size = (ts_org.shape[0], 1)
+        else:
+            ts_size = (ts_org.shape[0], ts_org.shape[1])
 
-        out = {'ts_org': ts, 'target': target, 'meta': {'ts_size': ts_size, 'index': index, 'class_name': class_name}}
+        out = {'ts_org': ts_org, 'target': target, 'meta': {'ts_size': ts_size, 'index': index, 'class_name': class_name}}
 
         return out
 

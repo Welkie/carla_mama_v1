@@ -113,8 +113,7 @@ def main():
         l = len(data) // 2
 
         n = 0
-        max_diff = 3  # cap differencing to avoid over-shrinking short series
-        while n < max_diff and (adfuller(data[:l], 1)[1] > 0.05 or adfuller(data[:l])[1] > 0.05):
+        while adfuller(data[:l], 1)[1] > 0.05 or adfuller(data[:l])[1] > 0.05:
             data = np.diff(data)
             labels = labels[1:]
             n += 1
