@@ -68,6 +68,9 @@ class Yahoo(Dataset):
             dict: {'ts': ts, 'target': index of target class, 'meta': dict}
         """
         ts_org = torch.from_numpy(self.data[index]).float().to(device)  # cuda
+        # Univariate data produces a 1D tensor [window_size]; promote to 2D [window_size, 1]
+        if ts_org.ndim == 1:
+            ts_org = ts_org.unsqueeze(-1)
         if len(self.targets) > 0:
             target = torch.tensor(self.targets[index].astype(int), dtype=torch.long).to(device)
             class_name = self.classes[target]
