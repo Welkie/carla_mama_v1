@@ -44,7 +44,7 @@ def add_summary_statistics(res_df):
 # =========================================================
 def run_experiments(data_files, python_exec, phase=0):
     print("\n" + "="*30)
-    print(f"STARTING EXPERIMENTS (smd) - PHASE {phase}")
+    print(f"STARTING EXPERIMENTS SMD - PHASE {phase}")
     print("="*30)
     
     execution_times = []
@@ -137,7 +137,7 @@ def run_experiments(data_files, python_exec, phase=0):
 # =========================================================
 def evaluate_experiments(data_files, prev_metrics_file=None, output_metrics_file=None):
     print("\n" + "="*30)
-    print("STARTING EVALUATION (smd)")
+    print("STARTING EVALUATION SMD")
     print("="*30)
 
     # DataFrame to store metrics
@@ -152,7 +152,11 @@ def evaluate_experiments(data_files, prev_metrics_file=None, output_metrics_file
             prev_df = pd.read_csv(prev_metrics_file)
             # Ensure columns match
             if not prev_df.empty and all(col in prev_df.columns for col in res_df.columns):
-                res_df = pd.concat([res_df, prev_df], ignore_index=True)
+                # Avoid FutureWarning by checking if res_df is empty
+                if res_df.empty:
+                    res_df = prev_df
+                else:
+                    res_df = pd.concat([res_df, prev_df], ignore_index=True)
                 print(f"Loaded {len(prev_df)} metrics from {prev_metrics_file}")
             else:
                 print(f"Warning: {prev_metrics_file} has incompatible format. Ignoring.")
@@ -226,7 +230,7 @@ def evaluate_experiments(data_files, prev_metrics_file=None, output_metrics_file
         json.dump(summary, f, indent=2)
 
     print("\n" + "="*30)
-    print("FINAL RESULTS (smd)")
+    print("FINAL RESULTS SMD")
     print("="*30)
     for k, v in summary.items():
         if isinstance(v, float):
@@ -271,7 +275,7 @@ def write_summary(time_results, eval_results):
 # MAIN
 # =========================================================
 def main():
-    parser = argparse.ArgumentParser(description="Run smd Experiments")
+    parser = argparse.ArgumentParser(description="Run SMD Experiments")
     parser.add_argument("--phase", type=int, default=0, choices=[0, 1, 2], 
                         help="Phase of execution: 0=All, 1=First Half, 2=Second Half")
     args = parser.parse_args()
@@ -279,8 +283,37 @@ def main():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     os.chdir(BASE_DIR)
 
-    # Lấy danh sách file dataset trong folder datasets/SMD/train
-    train_dir = os.path.join("datasets", "SMD", "train")
+    # Define Kaggle input path
+    kaggle_input_path = "/kaggle/input/datasets/mgusat/smd-onmiad/ServerMachineDataset"
+    writable_dataset_path = os.path.join(BASE_DIR, "datasets", "smd")
+    
+    # Check if Kaggle input exists
+    if os.path.exists(kaggle_input_path):
+        print(f"Found Kaggle dataset at: {kaggle_input_path}")
+        import shutil
+        
+        # Function to safely copy directories
+        def safe_copy_dir(src_name, dst_name):
+            src = os.path.join(kaggle_input_path, src_name)
+            dst = os.path.join(writable_dataset_path, dst_name)
+            if os.path.exists(src):
+                if not os.path.exists(dst):
+                    print(f"Copying {src} to {dst}...")
+                    shutil.copytree(src, dst)
+                else:
+                    print(f"Directory {dst} already exists. Skipping copy.")
+            else:
+                 print(f"Warning: Source directory {src} not found.")
+
+        safe_copy_dir("train", "train")
+        safe_copy_dir("test", "test")
+        safe_copy_dir("test_label", "test_label")
+        
+    else:
+        print("Kaggle input path not found. Using local path if available.")
+
+    # Lấy danh sách file dataset trong folder datasets/smd/train
+    train_dir = os.path.join("datasets", "smd", "train")
     if not os.path.exists(train_dir):
         print(f"Error: Directory {train_dir} does not exist.")
         return
@@ -326,7 +359,7 @@ def main():
     elif args.phase == 2:
         # Phase 2: Load Phase 1 metrics (if available) and evaluate current files
         print("\nEvaluating Phase 2 results (merging with Phase 1)...")
-        eval_results = evaluate_experiments(data_files, prev_metrics_file=phase_1_metrics_file)
+        eval_results = evaluate_experiments(data_files, prev_metrics_file=phase_1_metrics_file, output_metrics_file="results/smd/full_metrics.csv") 
         
         # Merge time stats
         final_time_stats = current_time_stats.copy()
@@ -358,7 +391,7 @@ def main():
     else: # Phase 0
         print("\nVerifying all results for evaluation...")
         # Evaluate all files directly 
-        eval_results = evaluate_experiments(all_files)
+        eval_results = evaluate_experiments(all_files, output_metrics_file="results/smd/full_metrics.csv")
         
         if eval_results:
             write_summary(current_time_stats, eval_results)

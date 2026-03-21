@@ -40,13 +40,13 @@ def add_summary_statistics(res_df):
     }
 
 # =========================================================
-# RUN EXPERIMENTS (GIỮ NGUYÊN)
+# RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, data_info, python_exec):
+def run_experiments(base_dir, file_list, python_exec):
     print("\n" + "="*30)
-    print("STARTING EXPERIMENTS")
+    print("STARTING EXPERIMENTS — Yahoo-A1")
     print("="*30)
-    
+
     execution_times = []
     max_gpu_mem_mb = 0.0
     start_all = time.time()
@@ -58,7 +58,7 @@ def run_experiments(base_dir, data_info, python_exec):
     else:
         print("No GPU available, memory tracking disabled")
 
-    for fname in data_info["chan_id"]:
+    for fname in file_list:
         print(f"\nRunning dataset: {fname}")
         start = time.time()
 
@@ -67,11 +67,11 @@ def run_experiments(base_dir, data_info, python_exec):
             result_pretext = subprocess.run([
                 python_exec, "carla_pretext.py",
                 "--config_env", "configs/env.yml",
-                "--config_exp", "configs/pretext/carla_pretext_msl.yml",
+                "--config_exp", "configs/pretext/carla_pretext_yahoo.yml",
                 "--fname", fname
             ], capture_output=True, text=True, check=True)
-            
-            # Parse GPU memory from pretext
+
+            # Parse GPU memory from pretext output
             if "Max GPU Memory Used:" in result_pretext.stdout:
                 for line in result_pretext.stdout.split('\n'):
                     if "Max GPU Memory Used:" in line:
@@ -87,11 +87,11 @@ def run_experiments(base_dir, data_info, python_exec):
             result_classification = subprocess.run([
                 python_exec, "carla_classification.py",
                 "--config_env", "configs/env.yml",
-                "--config_exp", "configs/classification/carla_classification_msl.yml",
+                "--config_exp", "configs/classification/carla_classification_yahoo.yml",
                 "--fname", fname
             ], capture_output=True, text=True, check=True)
 
-            # Parse GPU memory from classification
+            # Parse GPU memory from classification output
             if "Max GPU Memory Used:" in result_classification.stdout:
                 for line in result_classification.stdout.split('\n'):
                     if "Max GPU Memory Used:" in line:
@@ -105,7 +105,7 @@ def run_experiments(base_dir, data_info, python_exec):
         execution_times.append(time.time() - start)
         print(f"Max GPU Memory after {fname}: {max_gpu_mem_mb:.2f} MB")
 
-        # Track max GPU memory usage via torch if available locally
+        # Also track via torch directly if available
         if torch.cuda.is_available():
             current_max_mem = torch.cuda.max_memory_allocated() / 1024 / 1024
             max_gpu_mem_mb = max(max_gpu_mem_mb, current_max_mem)
@@ -115,28 +115,28 @@ def run_experiments(base_dir, data_info, python_exec):
     avg_time = total_time / len(execution_times) if execution_times else 0
 
     print("\n" + "="*30)
-    print("DONE ALL MSL DATASETS")
+    print("DONE ALL YAHOO-A1 DATASETS")
     print(f"Total time: {total_time:.2f} s")
     print(f"Avg / dataset: {avg_time:.2f} s")
     print("="*30)
 
     # Save time results
-    os.makedirs("results/msl", exist_ok=True)
+    os.makedirs("results/yahoo", exist_ok=True)
     time_results = {
         "TOTAL_TIME": total_time,
         "AVG_TIME": avg_time,
         "MAX_GPU_MEM_MB": max_gpu_mem_mb
     }
-    with open("results/msl/time_results.json", "w") as f:
+    with open("results/yahoo/time_results.json", "w") as f:
         json.dump(time_results, f, indent=2)
-    
-    print(f"\nTime results saved to results/msl/time_results.json")
+
+    print(f"\nTime results saved to results/yahoo/time_results.json")
     return time_results
 
 # =========================================================
 # EVALUATION (PAPER-STYLE)
 # =========================================================
-def evaluate_experiments(data_info):
+def evaluate_experiments(file_list):
     print("\n" + "="*30)
     print("STARTING EVALUATION (PAPER STYLE)")
     print("="*30)
@@ -146,9 +146,10 @@ def evaluate_experiments(data_info):
         "best_tp", "best_tn", "best_fp", "best_fn"
     ])
 
-    for fname in data_info["chan_id"]:
-        test_path = f"results/msl/{fname}/classification/classification_testprobs.csv"
-        train_path = f"results/msl/{fname}/classification/classification_trainprobs.csv"
+    for fname in file_list:
+        # fname is e.g. "real_1.csv"; config.py uses full fname as folder name
+        test_path = f"results/yahoo/{fname}/classification/classification_testprobs.csv"
+        train_path = f"results/yahoo/{fname}/classification/classification_trainprobs.csv"
 
         if not os.path.exists(test_path) or not os.path.exists(train_path):
             print(f"Skip {fname} (missing files)")
@@ -158,7 +159,7 @@ def evaluate_experiments(data_info):
             df_test = pd.read_csv(test_path)
             df_train = pd.read_csv(train_path)
 
-            cl_num = df_test.shape[1] - 1
+            cl_num = df_test.shape[1] - 1  # number of class columns
 
             df_train["pred"] = df_train.iloc[:, :cl_num].idxmax(axis=1)
             normal_class = df_train["pred"].value_counts().idxmax()
@@ -191,7 +192,7 @@ def evaluate_experiments(data_info):
 
     summary = add_summary_statistics(res_df)
 
-    with open("results/msl/evaluation_results.json", "w") as f:
+    with open("results/yahoo/evaluation_results.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     print("\n" + "="*30)
@@ -209,7 +210,7 @@ def evaluate_experiments(data_info):
 # WRITE SUMMARY
 # =========================================================
 def write_summary(time_results, eval_results):
-    out = "results/msl/ketqua.txt"
+    out = "results/yahoo/ketqua.txt"
 
     summary_lines = [
         "================ SUMMARY ================",
@@ -227,10 +228,10 @@ def write_summary(time_results, eval_results):
 
     summary_text = "\n".join(summary_lines)
 
-    # In ra màn hình
+    # Print to stdout
     print("\n" + summary_text)
 
-    # Ghi ra file
+    # Write to file
     with open(out, "w") as f:
         f.write(summary_text + "\n")
 
@@ -243,51 +244,46 @@ def main():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     os.chdir(BASE_DIR)
 
-    # Define Kaggle input path
-    kaggle_input_path = "/kaggle/input/datasets/patrickfleith/nasa-anomaly-detection-dataset-smap-msl"
-    writable_dataset_path = os.path.join(BASE_DIR, "datasets", "msl")
+    # ===========================================================
+    # Kaggle input path for Yahoo-A1 dataset
+    # Dataset: /kaggle/input/datasets/saostken/yahoo-a1/yahoo_A1
+    # Structure: 67 CSV files — real_1.csv ... real_67.csv
+    #            Columns: timestamp, value, is_anomaly
+    # ===========================================================
+    kaggle_input_path = "/kaggle/input/datasets/saostken/yahoo-a1/yahoo_A1"
+    writable_dataset_path = os.path.join(BASE_DIR, "datasets", "YAHOO")
 
-    # Ensure writable directory exists
+    # Ensure writable dataset directory exists
     os.makedirs(writable_dataset_path, exist_ok=True)
 
-    # Check if Kaggle input exists
+    # Copy CSVs from Kaggle read-only input to writable working dir
     if os.path.exists(kaggle_input_path):
         print(f"Found Kaggle dataset at: {kaggle_input_path}")
         import shutil
 
-        # Copy labeled_anomalies.csv
-        src_csv = os.path.join(kaggle_input_path, "labeled_anomalies.csv")
-        dst_csv = os.path.join(writable_dataset_path, "labeled_anomalies.csv")
-        if os.path.exists(src_csv) and not os.path.exists(dst_csv):
-            print(f"Copying {src_csv} to {dst_csv}...")
-            shutil.copyfile(src_csv, dst_csv)
-        
-        # Function to safely copy directories
-        def safe_copy_dir(src_subpath, dst_name):
-            src = os.path.join(kaggle_input_path, src_subpath)
-            dst = os.path.join(writable_dataset_path, dst_name)
-            if os.path.exists(src):
-                if not os.path.exists(dst):
-                    print(f"Copying {src} to {dst}...")
-                    shutil.copytree(src, dst)
-                else:
-                    print(f"Directory {dst} already exists. Skipping copy.")
-            else:
-                 print(f"Warning: Source directory {src} not found.")
-
-        # The structure is .../data/data/train and .../data/data/test
-        safe_copy_dir(os.path.join("data", "data", "train"), "train")
-        safe_copy_dir(os.path.join("data", "data", "test"), "test")
-        
+        for i in range(1, 68):
+            src = os.path.join(kaggle_input_path, f"real_{i}.csv")
+            dst = os.path.join(writable_dataset_path, f"real_{i}.csv")
+            if os.path.exists(src) and not os.path.exists(dst):
+                print(f"Copying real_{i}.csv ...")
+                shutil.copyfile(src, dst)
     else:
-        print("Kaggle input path not found. Using local path if available.")
+        print("Kaggle input path not found. Assuming dataset already in datasets/YAHOO/")
 
-    csv_path = "datasets/msl/labeled_anomalies.csv"
-    data_info = pd.read_csv(csv_path)
-    data_info = data_info[data_info["spacecraft"] == "MSL"]
+    # Build list of CSV filenames to process
+    file_list = sorted(
+        [f for f in os.listdir(writable_dataset_path) if f.endswith(".csv")],
+        key=lambda x: int(x.replace("real_", "").replace(".csv", ""))
+    )
 
-    time_results = run_experiments(BASE_DIR, data_info, sys.executable)
-    eval_results = evaluate_experiments(data_info)
+    if not file_list:
+        print("ERROR: No CSV files found in datasets/YAHOO/. Exiting.")
+        return
+
+    print(f"\nFound {len(file_list)} Yahoo-A1 files: {file_list[0]} ... {file_list[-1]}")
+
+    time_results = run_experiments(BASE_DIR, file_list, sys.executable)
+    eval_results = evaluate_experiments(file_list)
 
     if time_results and eval_results:
         write_summary(time_results, eval_results)
