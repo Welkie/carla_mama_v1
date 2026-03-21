@@ -2,10 +2,13 @@
 import os
 import pandas
 import numpy as np
+import torch
 from torch.utils.data import Dataset
 from utils.mypath import MyPath
 import ast
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class Yahoo(Dataset):
@@ -72,7 +75,7 @@ class Yahoo(Dataset):
             target = 0
             class_name = ''
 
-        ts_size = len(ts_org)
+        ts_size = (ts_org.shape[0], ts_org.shape[1])
 
         out = {'ts_org': ts_org, 'target': target, 'meta': {'ts_size': ts_size, 'index': index, 'class_name': class_name}}
 
