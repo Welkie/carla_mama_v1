@@ -68,9 +68,6 @@ class Yahoo(Dataset):
             dict: {'ts': ts, 'target': index of target class, 'meta': dict}
         """
         ts_org = torch.from_numpy(self.data[index]).float().to(device)  # cuda
-        # Univariate data produces a 1D tensor [window_size]; promote to 2D [window_size, 1]
-        if ts_org.ndim == 1:
-            ts_org = ts_org.unsqueeze(-1)
         if len(self.targets) > 0:
             target = torch.tensor(self.targets[index].astype(int), dtype=torch.long).to(device)
             class_name = self.classes[target]
@@ -78,7 +75,11 @@ class Yahoo(Dataset):
             target = 0
             class_name = ''
 
-        ts_size = (ts_org.shape[0], ts_org.shape[1])
+        # Handle univariate (1D) and multivariate (2D) tensors safely
+        if ts_org.ndim == 1:
+            ts_size = (ts_org.shape[0], 1)
+        else:
+            ts_size = (ts_org.shape[0], ts_org.shape[1])
 
         out = {'ts_org': ts_org, 'target': target, 'meta': {'ts_size': ts_size, 'index': index, 'class_name': class_name}}
 
