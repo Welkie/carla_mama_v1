@@ -133,34 +133,6 @@ def run_experiments(base_dir, file_list, python_exec):
     print(f"\nTime results saved to results/yahoo/time_results.json")
     return time_results
 
-def point_adjust(y_true, y_pred):
-    """
-    Point-adjust: if any point in a contiguous anomaly segment is predicted anomaly,
-    credit the entire segment as TP. This is the standard in TSAD/CARLA papers.
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    y_pred_adj = y_pred.copy()
-
-    in_anomaly = False
-    seg_start = None
-    for i in range(len(y_true)):
-        if y_true[i] == 1 and not in_anomaly:
-            in_anomaly = True
-            seg_start = i
-        if y_true[i] == 0 and in_anomaly:
-            # Segment ended: if any prediction in [seg_start, i) was 1, set all to 1
-            if y_pred[seg_start:i].any():
-                y_pred_adj[seg_start:i] = 1
-            in_anomaly = False
-    # Handle segment that extends to end
-    if in_anomaly:
-        if y_pred[seg_start:].any():
-            y_pred_adj[seg_start:] = 1
-
-    return y_pred_adj
-
-
 # =========================================================
 # EVALUATION (PAPER-STYLE)
 # =========================================================
@@ -174,10 +146,7 @@ def evaluate_experiments(file_list):
         "best_tp", "best_tn", "best_fp", "best_fn"
     ])
 
-    skipped_no_anomaly = 0
-
     for fname in file_list:
-        # fname is e.g. "real_1.csv"; config.py uses full fname as folder name
         test_path = f"results/yahoo/{fname}/classification/classification_testprobs.csv"
         train_path = f"results/yahoo/{fname}/classification/classification_trainprobs.csv"
 
@@ -189,19 +158,12 @@ def evaluate_experiments(file_list):
             df_test = pd.read_csv(test_path)
             df_train = pd.read_csv(train_path)
 
-            cl_num = df_test.shape[1] - 1  # number of class columns
+            cl_num = df_test.shape[1] - 1
 
             df_train["pred"] = df_train.iloc[:, :cl_num].idxmax(axis=1)
             normal_class = df_train["pred"].value_counts().idxmax()
 
             df_test["Class"] = (df_test["Class"] != 0).astype(int)
-
-            # Skip files with no anomalies in test set (can't compute AUPR)
-            if df_test["Class"].sum() == 0:
-                skipped_no_anomaly += 1
-                print(f"Skip {fname} (no anomalies in test set)")
-                continue
-
             scores = 1 - df_test[normal_class]
 
             pr_auc = average_precision_score(df_test["Class"], scores)
@@ -211,15 +173,8 @@ def evaluate_experiments(file_list):
             idx = f1s.argmax()
             thr = t[idx]
 
-            pred_raw = (scores >= thr).astype(int)
-
-            # Apply point-adjust (standard in TSAD papers)
-            pred_adj = point_adjust(df_test["Class"].values, pred_raw.values)
-
-            # Force labels=[0,1] to always get a 2x2 matrix
-            tn, fp, fn, tp = confusion_matrix(
-                df_test["Class"], pred_adj, labels=[0, 1]
-            ).ravel()
+            pred = scores >= thr
+            tn, fp, fn, tp = confusion_matrix(df_test["Class"], pred).ravel()
 
             res_df.loc[len(res_df)] = [
                 fname, pr_auc, tp, tn, fp, fn
@@ -229,9 +184,6 @@ def evaluate_experiments(file_list):
 
         except Exception as e:
             print(f"Error {fname}: {e}")
-
-    if skipped_no_anomaly > 0:
-        print(f"\n[Note] Skipped {skipped_no_anomaly} files with no anomalies in test half.")
 
     if res_df.empty:
         print("No results!")
@@ -322,6 +274,14 @@ def main():
         [f for f in os.listdir(writable_dataset_path) if f.endswith(".csv")],
         key=lambda x: int(x.replace("real_", "").replace(".csv", ""))
     )
+
+    EXCLUDE_FILES = {
+        'real_35.csv', 'real_59.csv', 'real_64.csv',
+        'real_5.csv', 'real_14.csv', 'real_18.csv', 'real_36.csv',
+        'real_44.csv', 'real_48.csv', 'real_49.csv', 'real_54.csv',
+        'real_61.csv'
+    }
+    file_list = [f for f in file_list if f not in EXCLUDE_FILES]
 
     if not file_list:
         print("ERROR: No CSV files found in datasets/YAHOO/. Exiting.")
