@@ -8,6 +8,7 @@ import torch
 import numpy as np
 import pandas as pd
 from sklearn.metrics import average_precision_score, confusion_matrix, precision_recall_curve
+import argparse
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -163,9 +164,9 @@ def prepare_kpi_data(hdf_path, writable_dataset_path):
 # =========================================================
 # RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, file_list, python_exec):
+def run_experiments(base_dir, file_list, python_exec, phase=0):
     print("\n" + "="*30)
-    print("STARTING EXPERIMENTS — KPI")
+    print(f"STARTING EXPERIMENTS KPI - PHASE {phase}")
     print("="*30)
 
     execution_times = []
@@ -232,43 +233,66 @@ def run_experiments(base_dir, file_list, python_exec):
             max_gpu_mem_mb = max(max_gpu_mem_mb, current_max_mem)
             torch.cuda.reset_peak_memory_stats()
 
-    total_time = time.time() - start_all
+    total_time = sum(execution_times)
+    
+    # If running Phase 0 (all at once), use wall clock for total time
+    if phase == 0:
+        total_time = time.time() - start_all
+    
     avg_time = total_time / len(execution_times) if execution_times else 0
 
     print("\n" + "="*30)
-    print("DONE ALL KPI DATASETS")
-    print(f"Total time: {total_time:.2f} s")
+    print(f"DONE PHASE {phase} ({len(file_list)} datasets)")
+    print(f"Total time (this phase): {total_time:.2f} s")
     print(f"Avg / dataset: {avg_time:.2f} s")
     print("="*30)
 
-    # Save time results
-    os.makedirs("results/kpi", exist_ok=True)
-    time_results = {
+    return {
         "TOTAL_TIME": total_time,
         "AVG_TIME": avg_time,
-        "MAX_GPU_MEM_MB": max_gpu_mem_mb
+        "MAX_GPU_MEM_MB": max_gpu_mem_mb,
+        "DATASET_COUNT": len(execution_times)
     }
-    with open("results/kpi/time_results.json", "w") as f:
-        json.dump(time_results, f, indent=2)
-
-    print(f"\nTime results saved to results/kpi/time_results.json")
-    return time_results
 
 
 # =========================================================
 # EVALUATION (PAPER-STYLE)
 # =========================================================
-def evaluate_experiments(file_list):
+def evaluate_experiments(file_list, prev_metrics_file=None, output_metrics_file=None):
     print("\n" + "="*30)
-    print("STARTING EVALUATION (PAPER STYLE)")
+    print("STARTING EVALUATION KPI")
     print("="*30)
 
+    # DataFrame to store metrics
     res_df = pd.DataFrame(columns=[
         "name", "pr",
         "best_tp", "best_tn", "best_fp", "best_fn"
     ])
 
+    # Load previous metrics if provided
+    if prev_metrics_file and os.path.exists(prev_metrics_file):
+        try:
+            prev_df = pd.read_csv(prev_metrics_file)
+            # Ensure columns match
+            if not prev_df.empty and all(col in prev_df.columns for col in res_df.columns):
+                # Avoid FutureWarning by checking if res_df is empty
+                if res_df.empty:
+                    res_df = prev_df
+                else:
+                    res_df = pd.concat([res_df, prev_df], ignore_index=True)
+                print(f"Loaded {len(prev_df)} metrics from {prev_metrics_file}")
+            else:
+                print(f"Warning: {prev_metrics_file} has incompatible format. Ignoring.")
+        except Exception as e:
+            print(f"Warning: Could not load previous metrics from {prev_metrics_file}: {e}")
+
+    # Process new files
     for fname in file_list:
+        # Check if already in res_df (avoid duplicates if re-running)
+        if fname in res_df["name"].values:
+            print(f"Skipping {fname} (already evaluated)")
+            continue
+
         test_path  = f"results/kpi/{fname}/classification/classification_testprobs.csv"
         train_path = f"results/kpi/{fname}/classification/classification_trainprobs.csv"
 
@@ -298,9 +322,12 @@ def evaluate_experiments(file_list):
             pred = scores >= thr
             tn, fp, fn, tp = confusion_matrix(df_test["Class"], pred).ravel()
 
-            res_df.loc[len(res_df)] = [
-                fname, pr_auc, tp, tn, fp, fn
-            ]
+            new_row = pd.DataFrame([{
+                "name": fname, 
+                "pr": pr_auc, 
+                "best_tp": tp, "best_tn": tn, "best_fp": fp, "best_fn": fn
+            }])
+            res_df = pd.concat([res_df, new_row], ignore_index=True)
 
             print(f"{fname}: PR-AUC={pr_auc:.4f}, TP={tp}, FP={fp}, FN={fn}")
 
@@ -311,14 +338,23 @@ def evaluate_experiments(file_list):
         print("No results!")
         return None
 
+    # Save metrics to file if requested
+    if output_metrics_file:
+        try:
+            res_df.to_csv(output_metrics_file, index=False)
+            print(f"Saved metrics to {output_metrics_file}")
+        except Exception as e:
+            print(f"Warning: Could not save metrics: {e}")
+
     summary = add_summary_statistics(res_df)
 
+    # Save final json summary
     os.makedirs("results/kpi", exist_ok=True)
     with open("results/kpi/evaluation_results.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     print("\n" + "="*30)
-    print("FINAL RESULTS (PAPER STYLE)")
+    print("FINAL RESULTS KPI")
     print("="*30)
     for k, v in summary.items():
         if isinstance(v, float):
@@ -365,6 +401,11 @@ def write_summary(time_results, eval_results):
 # MAIN
 # =========================================================
 def main():
+    parser = argparse.ArgumentParser(description="Run KPI Experiments")
+    parser.add_argument("--phase", type=int, default=0, choices=[0, 1, 2], 
+                        help="Phase of execution: 0=All, 1=First Half, 2=Second Half")
+    args = parser.parse_args()
+
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     os.chdir(BASE_DIR)
 
@@ -419,13 +460,74 @@ def main():
         print("ERROR: No KPI CSV files found or generated. Exiting.")
         return
 
-    print(f"\nProcessing {len(file_list)} KPI series: {file_list[0]} ... {file_list[-1]}")
+    # Split datasets based on phase
+    if args.phase == 0:
+        data_files = file_list
+    else:
+        mid_point = len(file_list) // 2
+        if args.phase == 1:
+            data_files = file_list[:mid_point]
+            print(f"PHASE 1: Running first {len(data_files)} datasets.")
+        else: # phase 2
+            data_files = file_list[mid_point:]
+            print(f"PHASE 2: Running last {len(data_files)} datasets.")
 
-    time_results = run_experiments(BASE_DIR, file_list, sys.executable)
-    eval_results = evaluate_experiments(file_list)
+    current_time_stats = run_experiments(BASE_DIR, data_files, sys.executable, phase=args.phase)
 
-    if time_results and eval_results:
-        write_summary(time_results, eval_results)
+    # Configure evaluation paths
+    phase_1_metrics_file = "results/kpi/phase_1_metrics_df.csv"
+    phase_1_time_file = "results/kpi/phase_1_time_stats.json"
+
+    if args.phase == 1:
+        # Phase 1: Evaluate current files and save metrics + time stats
+        print("\nEvaluating Phase 1 results...")
+        evaluate_experiments(data_files, output_metrics_file=phase_1_metrics_file)
+        
+        # Save time stats
+        with open(phase_1_time_file, "w") as f:
+            json.dump(current_time_stats, f, indent=2)
+            
+        print(f"Phase 1 completed. Please push '{phase_1_metrics_file}' and '{phase_1_time_file}' to continue in Phase 2.")
+        
+    elif args.phase == 2:
+        # Phase 2: Load Phase 1 metrics (if available) and evaluate current files
+        print("\nEvaluating Phase 2 results (merging with Phase 1)...")
+        eval_results = evaluate_experiments(data_files, prev_metrics_file=phase_1_metrics_file, output_metrics_file="results/kpi/full_metrics.csv") 
+        
+        # Merge time stats
+        final_time_stats = current_time_stats.copy()
+        if os.path.exists(phase_1_time_file):
+            try:
+                with open(phase_1_time_file, "r") as f:
+                    phase_1_stats = json.load(f)
+                    
+                    # Merge logic
+                    total_time = phase_1_stats.get("TOTAL_TIME", 0) + current_time_stats.get("TOTAL_TIME", 0)
+                    dataset_count = phase_1_stats.get("DATASET_COUNT", 0) + current_time_stats.get("DATASET_COUNT", 0)
+                    max_mem = max(phase_1_stats.get("MAX_GPU_MEM_MB", 0), current_time_stats.get("MAX_GPU_MEM_MB", 0))
+                    
+                    avg_time = total_time / dataset_count if dataset_count > 0 else 0
+                    
+                    final_time_stats = {
+                        "TOTAL_TIME": total_time,
+                        "AVG_TIME": avg_time,
+                        "MAX_GPU_MEM_MB": max_mem,
+                        "DATASET_COUNT": dataset_count
+                    }
+                    print(f"Merged time stats from Phase 1: Total Time={total_time:.2f}s")
+            except Exception as e:
+                print(f"Warning: Could not load Phase 1 time stats: {e}")
+        
+        if eval_results:
+            write_summary(final_time_stats, eval_results)
+            
+    else: # Phase 0
+        print("\nVerifying all results for evaluation...")
+        # Evaluate all files directly 
+        eval_results = evaluate_experiments(file_list, output_metrics_file="results/kpi/full_metrics.csv")
+        
+        if eval_results:
+            write_summary(current_time_stats, eval_results)
 
 
 if __name__ == "__main__":
