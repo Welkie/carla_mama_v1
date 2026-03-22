@@ -174,7 +174,7 @@ def evaluate_experiments(file_list):
             thr = t[idx]
 
             pred = scores >= thr
-            tn, fp, fn, tp = confusion_matrix(df_test["Class"], pred).ravel()
+            tn, fp, fn, tp = confusion_matrix(df_test["Class"], pred, labels=[0, 1]).ravel()
 
             res_df.loc[len(res_df)] = [
                 fname, pr_auc, tp, tn, fp, fn
