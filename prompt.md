@@ -242,4 +242,4 @@ Skip A-9 (missing files)
 Skip F-3 (missing files)
 No results!
 
-Fix lỗi ko đánh giá được
+Fix lỗi ko đánh giá được, hiện giờ tui đã đồng bộ tất cả file results trên github và dưới local đều là viết in thường. Bạn check đã ok hết chưa
