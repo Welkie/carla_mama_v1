@@ -72,6 +72,14 @@ class MSL(Dataset):
     def convert_to_windows(self, w_size, stride):
         windows = []
         wlabels = []
+        
+        # pad if shorter than/equal to w_size to ensure at least one window
+        if self.data.shape[0] <= w_size:
+            pad_size = w_size - self.data.shape[0] + stride
+            self.data = np.pad(self.data, ((0, pad_size), (0, 0)), 'constant')
+            if len(self.targets) > 0:
+                self.targets = np.pad(self.targets, (0, pad_size), 'constant')
+                
         sz = int((self.data.shape[0]-w_size)/stride)
         for i in range(0, sz):
             st = i * stride
