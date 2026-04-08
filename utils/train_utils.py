@@ -15,6 +15,7 @@ def pretext_train(train_loader, model, criterion, optimizer, epoch, prev_loss, d
 
     model.to(device)
     model.train()
+    loss = torch.tensor(0.0).to(device)
 
     for i, batch in enumerate(train_loader):
         ts_org = batch['ts_org'].float().to(device, non_blocking=True)

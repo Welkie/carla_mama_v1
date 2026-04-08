@@ -24,7 +24,12 @@ class MSL(Dataset):
         self.classes = ['Normal', 'Anomaly']
         self.data = []
         self.targets = []
-        wsz, stride = 512, 1
+        if fname == 'T-9':
+            wsz = 256
+        else:
+            wsz = 512
+        stride = 1
+
 
         with open(os.path.join(self.root, 'labeled_anomalies.csv'), 'r') as file:
             csv_reader = pandas.read_csv(file, delimiter=',')

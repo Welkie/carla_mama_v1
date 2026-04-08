@@ -71,21 +71,13 @@ Error running pretext for T-9: Command '['/usr/bin/python3', 'carla_pretext.py',
 Traceback (most recent call last):
   File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 240, in <module>
     main()
-  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 92, in main
-    train_dataset = get_train_dataset(p, train_transforms, sanomaly, to_augmented_dataset=True,
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/utils/common_config.py", line 96, in get_train_dataset
-    dataset = MSL(p['fname'], root=MyPath.db_root_dir(db_key), train=True, transform=transform, sanomaly=sanomaly,
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/MSL.py", line 70, in __init__
-    self.data, self.targets = self.convert_to_windows(wsz, stride)
-                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/carla_mama_v1/data/MSL.py", line 85, in convert_to_windows
-    return np.stack(windows), np.stack(wlabels)
-           ^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/numpy/_core/shape_base.py", line 444, in stack
-    raise ValueError('need at least one array to stack')
-ValueError: need at least one array to stack
+  File "/kaggle/working/carla_mama_v1/carla_pretext.py", line 196, in main
+    tmp_loss = pretext_train(train_dataloader, model, criterion, optimizer, epoch, prev_loss, device=device)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/carla_mama_v1/utils/train_utils.py", line 49, in pretext_train
+    return loss
+           ^^^^
+UnboundLocalError: cannot access local variable 'loss' where it is not associated with a value
 
 Error running classification for T-9: Command '['/usr/bin/python3', 'carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_msl.yml', '--fname', 'T-9']' returned non-zero exit status 1.
 Traceback (most recent call last):
@@ -133,8 +125,8 @@ Max GPU Memory after F-8: 2884.31 MB
 
 ==============================
 DONE ALL MSL DATASETS
-Total time: 11057.55 s
-Avg / dataset: 409.54 s
+Total time: 11069.01 s
+Avg / dataset: 409.96 s
 ==============================
 
 Time results saved to results/msl/time_results.json
@@ -191,9 +183,8 @@ F1-score  : 0.7104
 AUPR mean : 0.6902
 AUPR std  : 0.1667
 
-Total time     : 11057.55 s
-Avg / dataset  : 409.54 s
+Total time     : 11069.01 s
+Avg / dataset  : 409.96 s
 GPU max memory : 2884.31 MB
-=========================================
 
-Summary written to results/msl/ketqua.txt
+fix T-9 sử dụng wsz = 256, còn lại 512 đi
