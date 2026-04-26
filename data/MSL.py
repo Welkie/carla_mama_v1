@@ -25,9 +25,9 @@ class MSL(Dataset):
         self.data = []
         self.targets = []
         if fname == 'T-9':
-            wsz = 256
+            wsz = 128
         else:
-            wsz = 512
+            wsz = 128
         stride = 1
 
 
