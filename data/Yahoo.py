@@ -42,7 +42,7 @@ class Yahoo(Dataset):
 
         self.data = np.asarray(data)
         self.targets = np.asarray(label)
-        wsz, stride = 128, 1
+        wsz, stride = 512, 1
 
         if len(self.data) < wsz:
             raise ValueError(
