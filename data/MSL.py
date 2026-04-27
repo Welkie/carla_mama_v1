@@ -24,12 +24,6 @@ class MSL(Dataset):
         self.classes = ['Normal', 'Anomaly']
         self.data = []
         self.targets = []
-        if fname == 'T-9':
-            wsz = 128
-        else:
-            wsz = 128
-        stride = 1
-
 
         with open(os.path.join(self.root, 'labeled_anomalies.csv'), 'r') as file:
             csv_reader = pandas.read_csv(file, delimiter=',')
@@ -72,6 +66,23 @@ class MSL(Dataset):
             temp = (temp - self.mean) / self.std
 
         self.data = np.asarray(temp)
+
+        # Auto-reduce window size if dataset is too short
+        wsz = 1024
+        stride = 1
+        if len(self.data) < wsz:
+            if len(self.data) >= 512:
+                wsz = 512
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 1024, auto-reduced window size to {wsz}")
+            elif len(self.data) >= 256:
+                wsz = 256
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 512, auto-reduced window size to {wsz}")
+            else:
+                raise ValueError(
+                    f"[MSL] {fname}: Dataset too short ({len(self.data)} samples) for minimum window size 256. "
+                    f"Try a larger split or smaller window."
+                )
+
         self.data, self.targets = self.convert_to_windows(wsz, stride)
 
     def convert_to_windows(self, w_size, stride):

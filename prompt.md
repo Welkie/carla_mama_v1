@@ -1,1 +1,1 @@
-trong data\yahoo.py thêm đoạn là nếu Dataset too short for window size thì cho phép tự động giảm window size. Ví dụ 512 < dataset_length < 1024 thì giảm window size xuống 512, dataset_length < 512 thì giảm window size xuống 256
+trong data\smd.py thêm đoạn là nếu Dataset too short for window size thì cho phép tự động giảm window size. Ví dụ 512 < dataset_length < 1024 thì giảm window size xuống 512, dataset_length < 512 thì giảm window size xuống 256

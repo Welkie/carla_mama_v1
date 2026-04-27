@@ -27,7 +27,7 @@ class SMD(Dataset):
         self.data = []
         self.targets = []
         labels = []
-        wsz, stride = 512, 5
+        wsz, stride = 1024, 5
 
         if self.train:
             self.base_folder += 'train'
@@ -64,6 +64,23 @@ class SMD(Dataset):
 
         self.targets = np.asarray(labels)
         self.data = np.asarray(temp)
+
+        # Auto-reduce window size if dataset is too short
+        dataset_length = self.data.shape[0]
+        original_wsz = wsz
+        if dataset_length < 512:
+            wsz = 256
+        elif dataset_length < 1024:
+            wsz = 512
+
+        if wsz != original_wsz:
+            print(f'[SMD] Dataset too short for window size {original_wsz} (length={dataset_length}). '
+                  f'Reduced window size to {wsz}.')
+
+        if dataset_length < wsz:
+            raise ValueError(f'[SMD] Dataset length ({dataset_length}) is still shorter than '
+                             f'minimum window size ({wsz}). Cannot create windows.')
+
         self.data, self.targets = self.convert_to_windows(wsz, stride)
 
     def convert_to_windows(self, w_size, stride):
