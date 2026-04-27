@@ -33,7 +33,19 @@ class KPI(Dataset):
 
         self.data = []
         self.targets = []
-        wsize, wstride = 1024, 5
+        wsize, wstride = 2048, 5
+        if len(self.data) < wsz:
+            if len(self.data) >= 1024:
+                wsz = 1024
+            elif len(self.data) >= 512:
+                wsz = 512
+            elif len(self.data) >= 256:
+                wsz = 256
+            else:
+                raise ValueError(
+                    f"Dataset too short ({len(self.data)} samples) for minimum window size 256. "
+                    f"Try a larger split or smaller window."
+                )
 
         if self.train:
             self.base_folder += 'train'
