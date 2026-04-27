@@ -42,13 +42,21 @@ class Yahoo(Dataset):
 
         self.data = np.asarray(data)
         self.targets = np.asarray(label)
-        wsz, stride = 512, 1
+        wsz, stride = 1024, 1
 
+        # Auto-reduce window size if dataset is too short
         if len(self.data) < wsz:
-            raise ValueError(
-                f"Dataset too short ({len(self.data)} samples) for window size {wsz}. "
-                f"Try a larger split or smaller window."
-            )
+            if len(self.data) >= 512:
+                wsz = 512
+                print(f"[Yahoo] Dataset length {len(self.data)} < 1024, auto-reduced window size to {wsz}")
+            elif len(self.data) >= 256:
+                wsz = 256
+                print(f"[Yahoo] Dataset length {len(self.data)} < 512, auto-reduced window size to {wsz}")
+            else:
+                raise ValueError(
+                    f"Dataset too short ({len(self.data)} samples) for minimum window size 256. "
+                    f"Try a larger split or smaller window."
+                )
 
         self.data, self.targets = self.convert_to_windows(wsz, stride)
 
