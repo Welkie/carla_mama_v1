@@ -33,7 +33,7 @@ class KPI(Dataset):
 
         self.data = []
         self.targets = []
-        wsize, wstride = 2048, 5
+        wsize, wstride = 4096, 5
 
         if self.train:
             self.base_folder += 'train'
@@ -63,7 +63,9 @@ class KPI(Dataset):
 
         # Dynamic window size adjustment based on actual data length
         if len(self.data) < wsize:
-            if len(self.data) >= 1024:
+            if len(self.data) >= 2048:
+                wsize = 2048
+            elif len(self.data) >= 1024:
                 wsize = 1024
             elif len(self.data) >= 512:
                 wsize = 512
