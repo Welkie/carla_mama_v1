@@ -68,12 +68,15 @@ class MSL(Dataset):
         self.data = np.asarray(temp)
 
         # Auto-reduce window size if dataset is too short
-        wsz = 4096
+        wsz = 6000
         stride = 1
         if len(self.data) < wsz:
-            if len(self.data) >= 2048:
+            if len(self.data) >= 4096:
+                wsz = 4096
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 4096, auto-reduced window size to {wsz}")
+            elif len(self.data) >= 2048:
                 wsz = 2048
-                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 1024, auto-reduced window size to {wsz}")
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 2048, auto-reduced window size to {wsz}")
             elif len(self.data) >= 1024:
                 wsz = 1024
                 print(f"[MSL] {fname}: Dataset length {len(self.data)} < 1024, auto-reduced window size to {wsz}")
