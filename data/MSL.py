@@ -68,29 +68,23 @@ class MSL(Dataset):
         self.data = np.asarray(temp)
 
         # Auto-reduce window size if dataset is too short
-        wsz = 200
+        wsz = 2048
         stride = 1
-        # if len(self.data) < wsz:
-        #     if len(self.data) >= 4096:
-        #         wsz = 4096
-        #         print(f"[MSL] {fname}: Dataset length {len(self.data)} < 4096, auto-reduced window size to {wsz}")
-        #     elif len(self.data) >= 2048:
-        #         wsz = 2048
-        #         print(f"[MSL] {fname}: Dataset length {len(self.data)} < 2048, auto-reduced window size to {wsz}")
-        #     elif len(self.data) >= 1024:
-        #         wsz = 1024
-        #         print(f"[MSL] {fname}: Dataset length {len(self.data)} < 1024, auto-reduced window size to {wsz}")
-        #     elif len(self.data) >= 512:
-        #         wsz = 512
-        #         print(f"[MSL] {fname}: Dataset length {len(self.data)} < 512, auto-reduced window size to {wsz}")
-        #     elif len(self.data) >= 256:
-        #         wsz = 256
-        #         print(f"[MSL] {fname}: Dataset length {len(self.data)} < 256, auto-reduced window size to {wsz}")
-        #     else:
-        #         raise ValueError(
-        #             f"[MSL] {fname}: Dataset too short ({len(self.data)} samples) for minimum window size 256. "
-        #             f"Try a larger split or smaller window."
-        #         )
+        if len(self.data) < wsz:
+            if len(self.data) >= 1024:
+                wsz = 1024
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 1024, auto-reduced window size to {wsz}")
+            elif len(self.data) >= 512:
+                wsz = 512
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 512, auto-reduced window size to {wsz}")
+            elif len(self.data) >= 256:
+                wsz = 256
+                print(f"[MSL] {fname}: Dataset length {len(self.data)} < 256, auto-reduced window size to {wsz}")
+            else:
+                raise ValueError(
+                    f"[MSL] {fname}: Dataset too short ({len(self.data)} samples) for minimum window size 256. "
+                    f"Try a larger split or smaller window."
+                )
 
         self.data, self.targets = self.convert_to_windows(wsz, stride)
 

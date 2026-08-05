@@ -40,11 +40,11 @@ def add_summary_statistics(res_df):
     }
 
 # =========================================================
-# RUN EXPERIMENTS (GIỮ NGUYÊN)
+# RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, data_info, python_exec):
+def run_experiments(base_dir, data_info, python_exec, seed=42):
     print("\n" + "="*30)
-    print("STARTING EXPERIMENTS")
+    print(f"STARTING EXPERIMENTS (SEED {seed})")
     print("="*30)
     
     execution_times = []
@@ -59,16 +59,14 @@ def run_experiments(base_dir, data_info, python_exec):
         print("No GPU available, memory tracking disabled")
 
     for fname in data_info["chan_id"]:
-        print(f"\nRunning dataset: {fname}")
+        print(f"\nRunning dataset: {fname} (Seed {seed})")
         start = time.time()
 
         # Run pretext
         try:
             result_pretext = subprocess.run([
-                python_exec, "carla_pretext.py",
-                "--config_env", "configs/env.yml",
-                "--config_exp", "configs/pretext/carla_pretext_msl.yml",
-                "--fname", fname
+                python_exec, "-c",
+                f"import sys, torch; sys.argv=['carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_msl.yml', '--fname', '{fname}']; import carla_pretext; carla_pretext.set_seed({seed}); carla_pretext.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
             ], capture_output=True, text=True, check=True)
             
             # Parse GPU memory from pretext
@@ -85,10 +83,8 @@ def run_experiments(base_dir, data_info, python_exec):
         # Run classification
         try:
             result_classification = subprocess.run([
-                python_exec, "carla_classification.py",
-                "--config_env", "configs/env.yml",
-                "--config_exp", "configs/classification/carla_classification_msl.yml",
-                "--fname", fname
+                python_exec, "-c",
+                f"import sys, torch; sys.argv=['carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_msl.yml', '--fname', '{fname}']; import carla_classification; carla_classification.set_seed({seed}); carla_classification.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
             ], capture_output=True, text=True, check=True)
 
             # Parse GPU memory from classification
@@ -115,7 +111,7 @@ def run_experiments(base_dir, data_info, python_exec):
     avg_time = total_time / len(execution_times) if execution_times else 0
 
     print("\n" + "="*30)
-    print("DONE ALL MSL DATASETS")
+    print(f"DONE ALL MSL DATASETS (SEED {seed})")
     print(f"Total time: {total_time:.2f} s")
     print(f"Avg / dataset: {avg_time:.2f} s")
     print("="*30)
@@ -127,18 +123,18 @@ def run_experiments(base_dir, data_info, python_exec):
         "AVG_TIME": avg_time,
         "MAX_GPU_MEM_MB": max_gpu_mem_mb
     }
-    with open("results/msl/time_results.json", "w") as f:
+    with open(f"results/msl/time_results_seed_{seed}.json", "w") as f:
         json.dump(time_results, f, indent=2)
     
-    print(f"\nTime results saved to results/msl/time_results.json")
+    print(f"\nTime results saved to results/msl/time_results_seed_{seed}.json")
     return time_results
 
 # =========================================================
 # EVALUATION (PAPER-STYLE)
 # =========================================================
-def evaluate_experiments(data_info):
+def evaluate_experiments(data_info, seed=42):
     print("\n" + "="*30)
-    print("STARTING EVALUATION (PAPER STYLE)")
+    print(f"STARTING EVALUATION (PAPER STYLE - SEED {seed})")
     print("="*30)
 
     res_df = pd.DataFrame(columns=[
@@ -191,11 +187,11 @@ def evaluate_experiments(data_info):
 
     summary = add_summary_statistics(res_df)
 
-    with open("results/msl/evaluation_results.json", "w") as f:
+    with open(f"results/msl/evaluation_results_seed_{seed}.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     print("\n" + "="*30)
-    print("FINAL RESULTS (PAPER STYLE)")
+    print(f"FINAL RESULTS (PAPER STYLE - SEED {seed})")
     print("="*30)
     for k, v in summary.items():
         if isinstance(v, float):
@@ -208,7 +204,7 @@ def evaluate_experiments(data_info):
 # =========================================================
 # WRITE SUMMARY
 # =========================================================
-def write_summary(time_results, eval_results):
+def write_summary(time_results, eval_results, seed=None, is_first=True):
     out = "results/msl/ketqua.txt"
 
     summary_lines = [
@@ -231,7 +227,10 @@ def write_summary(time_results, eval_results):
     print("\n" + summary_text)
 
     # Ghi ra file
-    with open(out, "w") as f:
+    mode = "w" if is_first else "a"
+    with open(out, mode) as f:
+        if not is_first:
+            f.write("\n")
         f.write(summary_text + "\n")
 
     print(f"\nSummary written to {out}")
@@ -286,11 +285,13 @@ def main():
     data_info = pd.read_csv(csv_path)
     data_info = data_info[data_info["spacecraft"] == "MSL"]
 
-    time_results = run_experiments(BASE_DIR, data_info, sys.executable)
-    eval_results = evaluate_experiments(data_info)
+    seeds = [42, 100]
+    for idx, seed in enumerate(seeds):
+        time_results = run_experiments(BASE_DIR, data_info, sys.executable, seed=seed)
+        eval_results = evaluate_experiments(data_info, seed=seed)
 
-    if time_results and eval_results:
-        write_summary(time_results, eval_results)
+        if time_results and eval_results:
+            write_summary(time_results, eval_results, seed=seed, is_first=(idx == 0))
 
 if __name__ == "__main__":
     main()
