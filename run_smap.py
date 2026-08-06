@@ -42,7 +42,7 @@ def add_summary_statistics(res_df):
 # =========================================================
 # RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, data_info, python_exec, seed=100):
+def run_experiments(base_dir, data_info, python_exec, seed=42):
     print("\n" + "="*30)
     print(f"STARTING EXPERIMENTS (SEED {seed})")
     print("="*30)
@@ -282,7 +282,7 @@ def main():
     data_info = pd.read_csv(csv_path)
     data_info = data_info[data_info["spacecraft"] == "SMAP"]
 
-    time_results = run_experiments(BASE_DIR, data_info, sys.executable, seed=100)
+    time_results = run_experiments(BASE_DIR, data_info, sys.executable, seed=42)
     eval_results = evaluate_experiments(data_info)
 
     if time_results and eval_results:
