@@ -465,8 +465,8 @@ def main():
             data_files = file_list[:mid_point]
             print(f"PHASE 1: Running first {len(data_files)} datasets.")
         else: # phase 2
-            data_files = file_list[mid_point:]
-            print(f"PHASE 2: Running last {len(data_files)} datasets.")
+            data_files = file_list[mid_point:mid_point + 14]
+            print(f"PHASE 2: Running next {len(data_files)} datasets (limited to 14 datasets).")
 
     current_time_stats = run_experiments(BASE_DIR, data_files, sys.executable, phase=args.phase, seed=42)
 
