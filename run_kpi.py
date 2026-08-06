@@ -164,7 +164,7 @@ def prepare_kpi_data(hdf_path, writable_dataset_path):
 # =========================================================
 # RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, file_list, python_exec, phase=0, seed=42):
+def run_experiments(base_dir, file_list, python_exec, phase=0, seed=4):
     print("\n" + "="*30)
     print(f"STARTING EXPERIMENTS KPI - PHASE {phase} (SEED {seed})")
     print("="*30)
@@ -468,7 +468,7 @@ def main():
             data_files = file_list[mid_point:mid_point + 14]
             print(f"PHASE 2: Running next {len(data_files)} datasets (limited to 14 datasets).")
 
-    current_time_stats = run_experiments(BASE_DIR, data_files, sys.executable, phase=args.phase, seed=42)
+    current_time_stats = run_experiments(BASE_DIR, data_files, sys.executable, phase=args.phase, seed=4)
 
     # Configure evaluation paths
     phase_1_metrics_file = "results/kpi/phase_1_metrics_df.csv"
