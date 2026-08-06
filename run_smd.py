@@ -42,7 +42,7 @@ def add_summary_statistics(res_df):
 # =========================================================
 # RUN EXPERIMENTS
 # =========================================================
-def run_experiments(data_files, python_exec, phase=0, seed=100):
+def run_experiments(data_files, python_exec, phase=0, seed=42):
     print("\n" + "="*30)
     print(f"STARTING EXPERIMENTS SMD - PHASE {phase} (SEED {seed})")
     print("="*30)
@@ -335,7 +335,7 @@ def main():
             data_files = all_files[mid_point:]
             print(f"PHASE 2: Running last {len(data_files)} datasets.")
 
-    current_time_stats = run_experiments(data_files, sys.executable, phase=args.phase, seed=100)
+    current_time_stats = run_experiments(data_files, sys.executable, phase=args.phase, seed=42)
     
     # Configure evaluation paths
     phase_1_metrics_file = "results/smd/phase_1_metrics_df.csv"
