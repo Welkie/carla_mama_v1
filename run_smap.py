@@ -40,11 +40,11 @@ def add_summary_statistics(res_df):
     }
 
 # =========================================================
-# RUN EXPERIMENTS
+# RUN EXPERIMENTS (GIỮ NGUYÊN)
 # =========================================================
-def run_experiments(base_dir, data_info, python_exec, seed=42):
+def run_experiments(base_dir, data_info, python_exec):
     print("\n" + "="*30)
-    print(f"STARTING EXPERIMENTS (SEED {seed})")
+    print("STARTING EXPERIMENTS")
     print("="*30)
     
     execution_times = []
@@ -59,14 +59,16 @@ def run_experiments(base_dir, data_info, python_exec, seed=42):
         print("No GPU available, memory tracking disabled")
 
     for fname in data_info["chan_id"]:
-        print(f"\nRunning dataset: {fname} (Seed {seed})")
+        print(f"\nRunning dataset: {fname}")
         start = time.time()
 
         # Run pretext
         try:
             result_pretext = subprocess.run([
-                python_exec, "-c",
-                f"import sys, torch; sys.argv=['carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_smap.yml', '--fname', '{fname}']; import carla_pretext; carla_pretext.set_seed({seed}); carla_pretext.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
+                python_exec, "carla_pretext.py",
+                "--config_env", "configs/env.yml",
+                "--config_exp", "configs/pretext/carla_pretext_smap.yml",
+                "--fname", fname
             ], capture_output=True, text=True, check=True)
             
             # Parse GPU memory from pretext
@@ -83,8 +85,10 @@ def run_experiments(base_dir, data_info, python_exec, seed=42):
         # Run classification
         try:
             result_classification = subprocess.run([
-                python_exec, "-c",
-                f"import sys, torch; sys.argv=['carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_smap.yml', '--fname', '{fname}']; import carla_classification; carla_classification.set_seed({seed}); carla_classification.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
+                python_exec, "carla_classification.py",
+                "--config_env", "configs/env.yml",
+                "--config_exp", "configs/classification/carla_classification_smap.yml",
+                "--fname", fname
             ], capture_output=True, text=True, check=True)
 
             # Parse GPU memory from classification
@@ -111,7 +115,7 @@ def run_experiments(base_dir, data_info, python_exec, seed=42):
     avg_time = total_time / len(execution_times) if execution_times else 0
 
     print("\n" + "="*30)
-    print(f"DONE ALL SMAP DATASETS (SEED {seed})")
+    print("DONE ALL SMAP DATASETS")
     print(f"Total time: {total_time:.2f} s")
     print(f"Avg / dataset: {avg_time:.2f} s")
     print("="*30)
@@ -282,7 +286,7 @@ def main():
     data_info = pd.read_csv(csv_path)
     data_info = data_info[data_info["spacecraft"] == "SMAP"]
 
-    time_results = run_experiments(BASE_DIR, data_info, sys.executable, seed=42)
+    time_results = run_experiments(BASE_DIR, data_info, sys.executable)
     eval_results = evaluate_experiments(data_info)
 
     if time_results and eval_results:

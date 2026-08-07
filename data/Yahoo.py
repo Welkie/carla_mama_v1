@@ -42,7 +42,7 @@ class Yahoo(Dataset):
 
         self.data = np.asarray(data)
         self.targets = np.asarray(label)
-        wsz, stride = 512, 1
+        wsz, stride = 1024, 1
 
         # Auto-reduce window size if dataset is too short
         if len(self.data) < wsz:

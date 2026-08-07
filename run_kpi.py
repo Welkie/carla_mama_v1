@@ -164,9 +164,9 @@ def prepare_kpi_data(hdf_path, writable_dataset_path):
 # =========================================================
 # RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, file_list, python_exec, phase=0, seed=4):
+def run_experiments(base_dir, file_list, python_exec, phase=0):
     print("\n" + "="*30)
-    print(f"STARTING EXPERIMENTS KPI - PHASE {phase} (SEED {seed})")
+    print(f"STARTING EXPERIMENTS KPI - PHASE {phase}")
     print("="*30)
 
     execution_times = []
@@ -181,14 +181,16 @@ def run_experiments(base_dir, file_list, python_exec, phase=0, seed=4):
         print("No GPU available, memory tracking disabled")
 
     for fname in file_list:
-        print(f"\nRunning dataset: {fname} (Seed {seed})")
+        print(f"\nRunning dataset: {fname}")
         start = time.time()
 
         # Run pretext
         try:
             result_pretext = subprocess.run([
-                python_exec, "-c",
-                f"import sys, torch; sys.argv=['carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_kpi.yml', '--fname', '{fname}']; import carla_pretext; carla_pretext.set_seed({seed}); carla_pretext.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
+                python_exec, "carla_pretext.py",
+                "--config_env", "configs/env.yml",
+                "--config_exp", "configs/pretext/carla_pretext_kpi.yml",
+                "--fname", fname
             ], capture_output=True, text=True, check=True)
 
             # Parse GPU memory from pretext output
@@ -205,8 +207,10 @@ def run_experiments(base_dir, file_list, python_exec, phase=0, seed=4):
         # Run classification
         try:
             result_classification = subprocess.run([
-                python_exec, "-c",
-                f"import sys, torch; sys.argv=['carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_kpi.yml', '--fname', '{fname}']; import carla_classification; carla_classification.set_seed({seed}); carla_classification.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
+                python_exec, "carla_classification.py",
+                "--config_env", "configs/env.yml",
+                "--config_exp", "configs/classification/carla_classification_kpi.yml",
+                "--fname", fname
             ], capture_output=True, text=True, check=True)
 
             # Parse GPU memory from classification output
@@ -465,10 +469,10 @@ def main():
             data_files = file_list[:mid_point]
             print(f"PHASE 1: Running first {len(data_files)} datasets.")
         else: # phase 2
-            data_files = file_list[mid_point:mid_point + 14]
-            print(f"PHASE 2: Running next {len(data_files)} datasets (limited to 14 datasets).")
+            data_files = file_list[mid_point:]
+            print(f"PHASE 2: Running last {len(data_files)} datasets.")
 
-    current_time_stats = run_experiments(BASE_DIR, data_files, sys.executable, phase=args.phase, seed=4)
+    current_time_stats = run_experiments(BASE_DIR, data_files, sys.executable, phase=args.phase)
 
     # Configure evaluation paths
     phase_1_metrics_file = "results/kpi/phase_1_metrics_df.csv"

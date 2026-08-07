@@ -42,9 +42,9 @@ def add_summary_statistics(res_df):
 # =========================================================
 # RUN EXPERIMENTS
 # =========================================================
-def run_experiments(base_dir, file_list, python_exec, seed=42):
+def run_experiments(base_dir, file_list, python_exec):
     print("\n" + "="*30)
-    print(f"STARTING EXPERIMENTS — Yahoo-A1 (SEED {seed})")
+    print("STARTING EXPERIMENTS — Yahoo-A1")
     print("="*30)
 
     execution_times = []
@@ -59,14 +59,16 @@ def run_experiments(base_dir, file_list, python_exec, seed=42):
         print("No GPU available, memory tracking disabled")
 
     for fname in file_list:
-        print(f"\nRunning dataset: {fname} (Seed {seed})")
+        print(f"\nRunning dataset: {fname}")
         start = time.time()
 
         # Run pretext
         try:
             result_pretext = subprocess.run([
-                python_exec, "-c",
-                f"import sys, torch; sys.argv=['carla_pretext.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/pretext/carla_pretext_yahoo.yml', '--fname', '{fname}']; import carla_pretext; carla_pretext.set_seed({seed}); carla_pretext.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
+                python_exec, "carla_pretext.py",
+                "--config_env", "configs/env.yml",
+                "--config_exp", "configs/pretext/carla_pretext_yahoo.yml",
+                "--fname", fname
             ], capture_output=True, text=True, check=True)
 
             # Parse GPU memory from pretext output
@@ -83,8 +85,10 @@ def run_experiments(base_dir, file_list, python_exec, seed=42):
         # Run classification
         try:
             result_classification = subprocess.run([
-                python_exec, "-c",
-                f"import sys, torch; sys.argv=['carla_classification.py', '--config_env', 'configs/env.yml', '--config_exp', 'configs/classification/carla_classification_yahoo.yml', '--fname', '{fname}']; import carla_classification; carla_classification.set_seed({seed}); carla_classification.main(); print(f'Max GPU Memory Used: {{torch.cuda.max_memory_allocated() / 1024 / 1024:.2f}} MB') if torch.cuda.is_available() else None"
+                python_exec, "carla_classification.py",
+                "--config_env", "configs/env.yml",
+                "--config_exp", "configs/classification/carla_classification_yahoo.yml",
+                "--fname", fname
             ], capture_output=True, text=True, check=True)
 
             # Parse GPU memory from classification output
@@ -111,7 +115,7 @@ def run_experiments(base_dir, file_list, python_exec, seed=42):
     avg_time = total_time / len(execution_times) if execution_times else 0
 
     print("\n" + "="*30)
-    print(f"DONE ALL YAHOO-A1 DATASETS (SEED {seed})")
+    print("DONE ALL YAHOO-A1 DATASETS")
     print(f"Total time: {total_time:.2f} s")
     print(f"Avg / dataset: {avg_time:.2f} s")
     print("="*30)
@@ -123,18 +127,18 @@ def run_experiments(base_dir, file_list, python_exec, seed=42):
         "AVG_TIME": avg_time,
         "MAX_GPU_MEM_MB": max_gpu_mem_mb
     }
-    with open(f"results/yahoo/time_results_seed_{seed}.json", "w") as f:
+    with open("results/yahoo/time_results.json", "w") as f:
         json.dump(time_results, f, indent=2)
 
-    print(f"\nTime results saved to results/yahoo/time_results_seed_{seed}.json")
+    print(f"\nTime results saved to results/yahoo/time_results.json")
     return time_results
 
 # =========================================================
 # EVALUATION (PAPER-STYLE)
 # =========================================================
-def evaluate_experiments(file_list, seed=42):
+def evaluate_experiments(file_list):
     print("\n" + "="*30)
-    print(f"STARTING EVALUATION (PAPER STYLE - SEED {seed})")
+    print("STARTING EVALUATION (PAPER STYLE)")
     print("="*30)
 
     res_df = pd.DataFrame(columns=[
@@ -187,11 +191,11 @@ def evaluate_experiments(file_list, seed=42):
 
     summary = add_summary_statistics(res_df)
 
-    with open(f"results/yahoo/evaluation_results_seed_{seed}.json", "w") as f:
+    with open("results/yahoo/evaluation_results.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     print("\n" + "="*30)
-    print(f"FINAL RESULTS (PAPER STYLE - SEED {seed})")
+    print("FINAL RESULTS (PAPER STYLE)")
     print("="*30)
     for k, v in summary.items():
         if isinstance(v, float):
@@ -204,7 +208,7 @@ def evaluate_experiments(file_list, seed=42):
 # =========================================================
 # WRITE SUMMARY
 # =========================================================
-def write_summary(time_results, eval_results, seed=None, is_first=True):
+def write_summary(time_results, eval_results):
     out = "results/yahoo/ketqua.txt"
 
     summary_lines = [
@@ -227,10 +231,7 @@ def write_summary(time_results, eval_results, seed=None, is_first=True):
     print("\n" + summary_text)
 
     # Write to file
-    mode = "w" if is_first else "a"
-    with open(out, mode) as f:
-        if not is_first:
-            f.write("\n")
+    with open(out, "w") as f:
         f.write(summary_text + "\n")
 
     print(f"\nSummary written to {out}")
@@ -288,13 +289,11 @@ def main():
 
     print(f"\nFound {len(file_list)} Yahoo-A1 files: {file_list[0]} ... {file_list[-1]}")
 
-    seeds = [42, 100]
-    for idx, seed in enumerate(seeds):
-        time_results = run_experiments(BASE_DIR, file_list, sys.executable, seed=seed)
-        eval_results = evaluate_experiments(file_list, seed=seed)
+    time_results = run_experiments(BASE_DIR, file_list, sys.executable)
+    eval_results = evaluate_experiments(file_list)
 
-        if time_results and eval_results:
-            write_summary(time_results, eval_results, seed=seed, is_first=(idx == 0))
+    if time_results and eval_results:
+        write_summary(time_results, eval_results)
 
 if __name__ == "__main__":
     main()
