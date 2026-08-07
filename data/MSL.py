@@ -68,7 +68,7 @@ class MSL(Dataset):
         self.data = np.asarray(temp)
 
         # Auto-reduce window size if dataset is too short
-        wsz = 6000
+        wsz = 200
         stride = 1
         if len(self.data) < wsz:
             if len(self.data) >= 4096:
